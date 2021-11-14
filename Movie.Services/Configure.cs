@@ -16,6 +16,9 @@ namespace MovieApi.Services
                 .AddTransient<IActorService, ActorService>();
             services
                 .AddTransient<IProducerService, ProducerService>();
+            services
+                .AddTransient<IMovieService, MovieService>();
+
         }
     }
 }

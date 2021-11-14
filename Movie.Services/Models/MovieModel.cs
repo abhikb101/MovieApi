@@ -13,10 +13,10 @@ namespace MovieApi.Services.Models
         public string Plot;
         public DateTime ReleaseDate;
 
-        List<ActorModel> Actors;
-        List<ProducerModel> Producers;
+        public List<ActorModel> Actors;
+        public List<ProducerModel> Producers;
     
-        MovieModel()
+        public MovieModel()
         {
             Actors = new List<ActorModel>();
             Producers = new List<ProducerModel>();
