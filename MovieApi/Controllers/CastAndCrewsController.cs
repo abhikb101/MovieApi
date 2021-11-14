@@ -66,7 +66,7 @@ namespace MovieApi.API.Controllers
         }
 
         // DELETE: api/CastAndCrews/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{actorId}")]
         public async Task<IActionResult> DeleteCastAndCrew(Guid movieId, Guid actorId, int role)
         {
             var cast = new List<CastAndCrew>();
@@ -98,7 +98,7 @@ namespace MovieApi.API.Controllers
 
             }
 
-            cast  = await _context.Get<CastAndCrew>(t =>  t.MovieId == movieId && t.PersonId == personId);
+            cast  = await _context.Get<CastAndCrew>(t =>  t.MovieId == movieId && t.PersonId == personId && t.Role == role);
 
             await _context.Delete(cast.First().CrewId);
 
