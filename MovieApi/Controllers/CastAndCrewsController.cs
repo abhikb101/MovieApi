@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieApi.DAL;
 using MovieApi.Models;
+using MovieApi.Services;
 
 namespace MovieApi.API.Controllers
 {
@@ -14,109 +15,95 @@ namespace MovieApi.API.Controllers
     [ApiController]
     public class CastAndCrewsController : ControllerBase
     {
-        private readonly MovieDBContext _context;
-
-        public CastAndCrewsController(MovieDBContext context)
+        private readonly IRepository<CastAndCrew> _context;
+        private readonly IRepository<Actor> _actorService;
+        private readonly IRepository<Producer> _producerService;
+        public CastAndCrewsController(IRepository<CastAndCrew> context, IRepository<Actor> actorService, IRepository<Producer> producerService)
         {
             _context = context;
-        }
+            _actorService = actorService;
+            _producerService = producerService;
 
-        // GET: api/CastAndCrews
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CastAndCrew>>> GetCastAndCrews()
-        {
-            return await _context.CastAndCrews.ToListAsync();
-        }
-
-        // GET: api/CastAndCrews/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CastAndCrew>> GetCastAndCrew(Guid id)
-        {
-            var castAndCrew = await _context.CastAndCrews.FindAsync(id);
-
-            if (castAndCrew == null)
-            {
-                return NotFound();
-            }
-
-            return castAndCrew;
-        }
-
-        // PUT: api/CastAndCrews/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCastAndCrew(Guid id, CastAndCrew castAndCrew)
-        {
-            if (id != castAndCrew.CrewId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(castAndCrew).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CastAndCrewExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
         }
 
         // POST: api/CastAndCrews
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CastAndCrew>> PostCastAndCrew(CastAndCrew castAndCrew)
+        public async Task<ActionResult<CastAndCrew>> AddCast(Guid movieId, Guid actorId, int role)
         {
-            _context.CastAndCrews.Add(castAndCrew);
-            try
+            var cast = new CastAndCrew();
+            cast.MovieId = movieId;
+            cast.CrewId = Guid.NewGuid();
+            cast.Role = role;
+            if (role == 0)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (CastAndCrewExists(castAndCrew.CrewId))
+                var actor = await _actorService.GetByID(actorId);
+
+                if(actor == null)
                 {
-                    return Conflict();
+                    return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                cast.PersonId = actor.PersonId;
+                
             }
 
-            return CreatedAtAction("GetCastAndCrew", new { id = castAndCrew.CrewId }, castAndCrew);
+            if (role == 1)
+            {
+                var producer = await _producerService.GetByID(actorId);
+
+                if (producer == null)
+                {
+                    return NotFound();
+                }
+
+                cast.PersonId = producer.PersonId;
+
+            }
+
+            await _context.Add(cast);
+            return CreatedAtAction("GetCastAndCrew", new { id = cast.CrewId }, cast);
         }
 
         // DELETE: api/CastAndCrews/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCastAndCrew(Guid id)
+        public async Task<IActionResult> DeleteCastAndCrew(Guid movieId, Guid actorId, int role)
         {
-            var castAndCrew = await _context.CastAndCrews.FindAsync(id);
-            if (castAndCrew == null)
+            var cast = new List<CastAndCrew>();
+
+            Guid personId = new Guid();
+            if (role == 0)
             {
-                return NotFound();
+                var actor = await _actorService.GetByID(actorId);
+
+                if (actor == null)
+                {
+                    return NotFound();
+                }
+
+                personId = actor.PersonId;
+
             }
 
-            _context.CastAndCrews.Remove(castAndCrew);
-            await _context.SaveChangesAsync();
+            if (role == 1)
+            {
+                var producer = await _producerService.GetByID(actorId);
+
+                if (producer == null)
+                {
+                    return NotFound();
+                }
+
+                personId = producer.PersonId;
+
+            }
+
+            cast  = await _context.Get<CastAndCrew>(t =>  t.MovieId == movieId && t.PersonId == personId);
+
+            await _context.Delete(cast.First().CrewId);
 
             return NoContent();
         }
 
-        private bool CastAndCrewExists(Guid id)
-        {
-            return _context.CastAndCrews.Any(e => e.CrewId == id);
-        }
     }
 }
