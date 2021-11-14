@@ -99,6 +99,7 @@ namespace MovieApi.Services
         public virtual async Task SaveActor(ActorModel actor, Guid id)
         {
             var newActor = await ActorModelToActorAsync(actor, id);
+            newActor.ActorId = id;
             await _actor.Save(newActor);
         }
     }
