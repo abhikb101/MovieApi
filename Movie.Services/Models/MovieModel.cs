@@ -8,14 +8,14 @@ namespace MovieApi.Services.Models
 {
     public class MovieModel
     {
-        public Guid? MovieId;
-        public string Name;
-        public string Plot;
-        public DateTime ReleaseDate;
+        public Guid? MovieId { get; set; }
+        public string Name { get; set; }
+        public string Plot { get; set; }
+        public DateTime ReleaseDate { get; set; }
 
-        public List<ActorModel> Actors;
-        public List<ProducerModel> Producers;
-    
+        public List<ActorModel> Actors { get; set; }
+        public List<ProducerModel> Producers { get; set; }
+
         public MovieModel()
         {
             Actors = new List<ActorModel>();

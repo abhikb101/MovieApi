@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>65d9fd33-6879-462b-8221-dad6f82cde18</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <DocumentationFile>C:\DeltaX\MovieApi\MovieApi\MovieApi.API.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -8,7 +8,7 @@ namespace MovieApi.Services.Models
 {
     public class ProducerModel : PersonModel
     {
-        public Guid? ProducerId;
-        public string Company;
+        public Guid? ProducerId { get; set; }
+        public string Company { get; set; }
     }
 }
